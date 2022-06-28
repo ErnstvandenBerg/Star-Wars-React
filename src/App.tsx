@@ -1,12 +1,8 @@
-import React from 'react';
-import logo from './logo.svg';
+
 import './App.css';
 import PeoplePage from './pages/People/peoplepage';
-
-
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-
+import store from './app/store'
+import { Provider } from 'react-redux'
 
 import {
   ApolloClient,
@@ -27,9 +23,11 @@ const client = new ApolloClient({
 
 function App() {
   return (
-    <ApolloProvider client={client}>
-      <PeoplePage />
-    </ApolloProvider>
+    <Provider store={store}>
+      <ApolloProvider client={client}>
+        <PeoplePage />
+      </ApolloProvider>
+    </Provider>
   );
 }
 
