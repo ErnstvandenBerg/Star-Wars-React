@@ -9,14 +9,12 @@ import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
-  useQuery,
-  gql
 } from "@apollo/client";
 
 // dotEnv.config();
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/',
+  uri: 'https://e87mb5.sse.codesandbox.io/',
   cache: new InMemoryCache()
 });
 

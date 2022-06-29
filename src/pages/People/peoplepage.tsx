@@ -1,9 +1,8 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { ApolloClient, ApolloLink, InMemoryCache, HttpLink, gql, useQuery, useLazyQuery } from "@apollo/client";
+import { useState } from "react";
+import { gql, useQuery } from "@apollo/client";
 import { useSelector, useDispatch } from 'react-redux';
 import { decrement, increment, counterClear } from '../../features/counter/counterSlice';
-import { add, clear } from '../../features/saveCharacter/character';
-import { addSearch, clearSearch } from '../../features/search/search';
+import { add } from '../../features/saveCharacter/character';
 import ReactLoading from "react-loading";
 
 import {

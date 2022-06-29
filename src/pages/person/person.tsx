@@ -1,7 +1,6 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { NavLink, useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
     CardWrapper,
     CardHeader,
