@@ -1,10 +1,11 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { ApolloClient, ApolloLink, InMemoryCache, HttpLink, gql, useQuery, useLazyQuery } from "@apollo/client";
-import { useSelector, useDispatch } from 'react-redux'
-import { decrement, increment } from '../../features/counter/counterSlice'
-import { add, clear } from '../../features/saveCharacter/character'
+import { useSelector, useDispatch } from 'react-redux';
+import { decrement, increment, counterClear } from '../../features/counter/counterSlice';
+import { add, clear } from '../../features/saveCharacter/character';
+import { addSearch, clearSearch } from '../../features/search/search';
 import ReactLoading from "react-loading";
-import Modal, { ModalProvider, BaseModalBackground } from "styled-react-modal";
+
 import {
   TableBlock,
   Background,
@@ -14,7 +15,13 @@ import {
   Tablecolumnhead,
   TableBody,
   TableName,
-  TableBodyBottom
+  TableBodyBottom,
+  TableLink,
+  TableButton,
+  TableFieldset,
+  TableInput,
+  TableCounter,
+  Tabletbody
 } from "../../components/table/table"
 
 import {
@@ -22,39 +29,9 @@ import {
 } from "../../components/error/error"
 
 const getPeople: any = gql`
-query Query($page: Int) {
-  listPeople(page: $page) {
-    name
-    height
+query Query($name: String, $page: Int) {
+  listPeople(name: $name, page: $page) {
     id
-    mass
-    gender
-    homeworld {
-      name
-    }
-  }
-}
-`;
-
-const searchPeople: any = gql`
-query Query($name: String!) {
-  SearchPeople(name: $name) {
-    name
-    height
-    mass
-    gender
-    homeworld {
-      name
-    }
-  }
-}
-
-`;
-
-
-const savePeople: any = gql`
-query Query($name: String!) {
-  SearchPeople(name: $name) {
     name
     height
     mass
@@ -68,13 +45,12 @@ query Query($name: String!) {
     birth_year
   }
 }
-
 `;
-
 
 function PeoplePage() {
   const count = useSelector((state: any) => state.counter.value);
-  const character = useSelector((state: any) => state.character.value);
+
+  const search = useSelector((state: any) => state.search.value);
   const [searchValue, setSearchValue] = useState("");
   const dispatch = useDispatch()
 
@@ -82,104 +58,49 @@ function PeoplePage() {
     dispatch(increment());
   }
   function pagePrev() {
-    if (count >= 1) {
+    if (count > 1) {
       dispatch(decrement());
     }
   }
 
-  function useSave(name:string) {
-    const [savePeopleQuery, { loading, error, data }] = useLazyQuery<any>(savePeople);
-
-    if (loading) dispatch(add({ loading: "loading" }));
-    if (error) dispatch(add(JSON.stringify({ error: "error" })));
-    if (data) {
-      dispatch(add(data.SearchPeople[0]));
-    }
-
-    savePeopleQuery({
-      variables: { name: name },
-    })
-  }
 
   function GetPeople() {
     const { loading, error, data } = useQuery<any>(getPeople, {
-      variables: { page: count },
+      variables: { page: count, name: searchValue },
     });
 
     if (loading) return (<Loading><ReactLoading type={"bars"} color="#fff" /><div>Loading</div></Loading>);
-    if (error) return (<div>{JSON.stringify(error)}</div>);
+    if (error) return (<Loading><div>Failed to Load</div></Loading>);
 
     //setData(data.data.listPeople);
-
+    dispatch(add(data.listPeople));
     return (
       data.listPeople.map((array: any, i: number) => (
         <Tablerow key={i}>
-          <Tablecolumn >
+          <TableLink to={`/person/${array.id}`}>
+            <Tablecolumn >
 
-            {array.name}
+              {array.name}
 
-          </Tablecolumn>
-          <Tablecolumn >
-
-
-            {array.height}
-          </Tablecolumn>
-          <Tablecolumn >
-
-            {array.mass}
-          </Tablecolumn>
-          <Tablecolumn >
-
-            {array.gender}
-          </Tablecolumn>
-          <Tablecolumn >
-
-            {array.homeworld.name}
-          </Tablecolumn>
-          <button onClick={() =>  useSave(array.name) }>save</button>
-        </Tablerow>
-
-      ))
-    );
-  }
+            </Tablecolumn>
+            <Tablecolumn >
 
 
-  
-  function SearchPeople() {
-    const { loading, error, data } = useQuery<any>(searchPeople, {
-      variables: { name: searchValue },
-    });
+              {array.height}
+            </Tablecolumn>
+            <Tablecolumn >
 
-    if (loading) return (<Loading><ReactLoading type={"bars"} color="#fff" /><div>Loading</div></Loading>);
-    if (error) return (<div>{JSON.stringify(error)}</div>);
+              {array.mass}
+            </Tablecolumn>
+            <Tablecolumn >
 
-    //setData(data.data.listPeople);
+              {array.gender}
+            </Tablecolumn>
+            <Tablecolumn >
 
-    return (
-      data.SearchPeople.map((array: any, i: number) => (
-        <Tablerow key={i}>
-          <Tablecolumn >
-
-            {array.name}
-
-          </Tablecolumn>
-          <Tablecolumn >
-
-
-            {array.height}
-          </Tablecolumn>
-          <Tablecolumn >
-
-            {array.mass}
-          </Tablecolumn>
-          <Tablecolumn >
-
-            {array.gender}
-          </Tablecolumn>
-          <Tablecolumn >
-
-            {array.homeworld.name}
-          </Tablecolumn>
+              {array.homeworld.name}
+            </Tablecolumn>
+          </TableLink>
         </Tablerow>
 
       ))
@@ -188,71 +109,45 @@ function PeoplePage() {
 
   return (<>
     <Background>
-z
-        <TableBody>
-          <TableName>name</TableName>
-          <TableBodyBottom>
-            <Tableheader>
-              <Tablerow>
-                <Tablecolumnhead >
-                  name
-                </Tablecolumnhead>
-                <Tablecolumnhead >
-                  height
-                </Tablecolumnhead>
-                <Tablecolumnhead >
-                  mass
-                </Tablecolumnhead>
-                <Tablecolumnhead >
-                  gender
-                </Tablecolumnhead>
-                <Tablecolumnhead >
-                  homeworld
-                </Tablecolumnhead>
-              </Tablerow>
-            </Tableheader>
 
-            <TableBlock >
-              <tbody>
-                <GetPeople />
-              </tbody>
-            </TableBlock>
-          </TableBodyBottom>
-        </TableBody>
-        <button onClick={() => pagePrev()}>prev</button>
-        <p>{count}</p>
-        <button onClick={() => pageNext()}>next</button>
+      <TableBody>
+        <TableName><TableInput placeholder="Search" onChange={(event) => { dispatch(counterClear()); setSearchValue(event.target.value); }}></TableInput></TableName>
+        <TableBodyBottom>
+          <Tableheader>
+            <Tablerow>
+              <Tablecolumnhead >
+                name
+              </Tablecolumnhead>
+              <Tablecolumnhead >
+                height
+              </Tablecolumnhead>
+              <Tablecolumnhead >
+                mass
+              </Tablecolumnhead>
+              <Tablecolumnhead >
+                gender
+              </Tablecolumnhead>
+              <Tablecolumnhead >
+                homeworld
+              </Tablecolumnhead>
+            </Tablerow>
+          </Tableheader>
 
-        <TableBody>
-          <TableName><input onChange={(event) => setSearchValue(event.target.value)}></input></TableName>
-          <TableBodyBottom>
-            <Tableheader>
-              <Tablerow>
-                <Tablecolumnhead >
-                  name
-                </Tablecolumnhead>
-                <Tablecolumnhead >
-                  height
-                </Tablecolumnhead>
-                <Tablecolumnhead >
-                  mass
-                </Tablecolumnhead>
-                <Tablecolumnhead >
-                  gender
-                </Tablecolumnhead>
-                <Tablecolumnhead >
-                  homeworld
-                </Tablecolumnhead>
-              </Tablerow>
-            </Tableheader>
+          <TableBlock >
+            <Tabletbody>
+              <GetPeople />
+            </Tabletbody>
+          </TableBlock>
+        </TableBodyBottom>
+      </TableBody>
+      <TableFieldset>
+        <TableButton onClick={() => pagePrev()}>prev</TableButton>
+        <TableCounter>{count}</TableCounter>
+        <TableButton onClick={() => pageNext()}>next</TableButton>
+      </TableFieldset>
 
-            <TableBlock >
-              <tbody>
-                <SearchPeople />
-              </tbody>
-            </TableBlock>
-          </TableBodyBottom>
-        </TableBody>
+
+
     </Background>
   </>)
 }

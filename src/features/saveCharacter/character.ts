@@ -1,22 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 export const character = createSlice({
-    name: 'counter',
+    name: 'character',
     initialState: {
-        value: {},
+        value: [],
     },
     reducers: {
         add: (state, action) => {
             state.value = action.payload;
         },
         clear: (state) => {
-            state.value = {};
+            state.value = [];
         },
-        
+
     },
 })
 
 // Action creators are generated for each case reducer function
-export const { add, clear} = character.actions
+export const { add, clear } = character.actions
 
 export default character.reducer

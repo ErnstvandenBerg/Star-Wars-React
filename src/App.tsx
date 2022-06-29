@@ -1,8 +1,9 @@
-
 import './App.css';
 import PeoplePage from './pages/People/peoplepage';
+import PersonPage from './pages/person/person';
 import store from './app/store'
 import { Provider } from 'react-redux'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import {
   ApolloClient,
@@ -23,11 +24,18 @@ const client = new ApolloClient({
 
 function App() {
   return (
+
     <Provider store={store}>
       <ApolloProvider client={client}>
-        <PeoplePage />
+        <Router>
+          <Routes>
+            <Route path='/' element={<PeoplePage />} />
+            <Route path='/Person/:id' element={<PersonPage />} />
+          </Routes>
+        </Router>
       </ApolloProvider>
     </Provider>
+
   );
 }
 
